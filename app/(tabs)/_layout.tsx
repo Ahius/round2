@@ -1,10 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
-
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -14,25 +11,37 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#0874ec",
+        tabBarInactiveTintColor: "#888",
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
-        }),
+        tabBarStyle: {
+          backgroundColor: "#fff",
+          height: Platform.OS === "ios" ? 90 : 70,
+          paddingBottom: Platform.OS === "ios" ? 25 : 12,
+          paddingTop: 8,
+          borderTopStartRadius: 20,
+          borderTopRightRadius: 20,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "500",
+          marginBottom: 6,  
+        },
+        tabBarIconStyle: {
+          marginTop: 6,  
+        },
       }}
     >
       <Tabs.Screen
         name="overview"
         options={{
           title: "Tổng quan",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons
+              name="dashboard"
+              size={26}  
+              color={focused ? "#0874ec" : "#888"}
+            />
           ),
         }}
       />
@@ -40,18 +49,25 @@ export default function TabLayout() {
         name="orders"
         options={{
           title: "Đơn hàng",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons
+              name="list-alt"
+              size={26}
+              color={focused ? "#0874ec" : "#888"}
+            />
           ),
         }}
       />
-
       <Tabs.Screen
         name="chart"
         options={{
           title: "Sơ đồ Gantt",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons
+              name="timeline"
+              size={26}
+              color={focused ? "#0874ec" : "#888"}
+            />
           ),
         }}
       />
@@ -59,8 +75,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Lệnh SX",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons
+              name="assignment"
+              size={26}
+              color={focused ? "#0874ec" : "#888"}
+            />
           ),
         }}
       />
@@ -68,20 +88,15 @@ export default function TabLayout() {
         name="more"
         options={{
           title: "Xem thêm",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons
+              name="more-horiz"
+              size={26}
+              color={focused ? "#0874ec" : "#888"}
+            />
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
-          ),
-        }}
-      /> */}
     </Tabs>
   );
 }
