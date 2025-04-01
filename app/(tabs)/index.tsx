@@ -10,23 +10,29 @@ import {
   Pressable,
   TextInput,
 } from "react-native";
-import Header from "@/components/Header";
+import Entypo from "@expo/vector-icons/Entypo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { productionOrders } from "@/data/productionOrders";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+import Header from "@/components/Header";
+import { productionOrders } from "@/data/productionOrders";
+
+
 const { width } = Dimensions.get("window");
 const SIDEBAR_WIDTH = width * 0.85;
 
 export default function HomeScreen() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarPosition = useState(new Animated.Value(-SIDEBAR_WIDTH))[0];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pinnedOrders, setPinnedOrders] = useState<number[]>([]);
+  const [showTooltip, setShowTooltip] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState([
     "pending",
     "in_progress",
     "completed",
   ]);
-  const [pinnedOrders, setPinnedOrders] = useState<number[]>([]);
-  const [showTooltip, setShowTooltip] = useState<number | null>(null);
 
   const toggleSidebar = () => {
     const toValue = sidebarOpen ? -SIDEBAR_WIDTH : 0;
@@ -40,18 +46,19 @@ export default function HomeScreen() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const togglePin = (orderId: number) => {
-    if (pinnedOrders.includes(orderId)) {
-      setPinnedOrders(pinnedOrders.filter((id) => id !== orderId));
-    } else {
-      setPinnedOrders([...pinnedOrders, orderId]);
-    }
-  };
   const toggleStatus = (status: any) => {
     if (selectedStatuses.includes(status)) {
       setSelectedStatuses(selectedStatuses.filter((s) => s !== status));
     } else {
       setSelectedStatuses([...selectedStatuses, status]);
+    }
+  };
+
+  const togglePin = (orderId: number) => {
+    if (pinnedOrders.includes(orderId)) {
+      setPinnedOrders(pinnedOrders.filter((id) => id !== orderId));
+    } else {
+      setPinnedOrders([...pinnedOrders, orderId]);
     }
   };
 
@@ -71,8 +78,6 @@ export default function HomeScreen() {
         return { color: "gray", text: "Unknown" };
     }
   };
-
-  const [isOpen, setIsOpen] = useState(false);
 
   const statuses = [
     {
@@ -94,9 +99,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-[#f3f4f6]">
-      <Header />
-
-      {/* Main Content */}
+      <Header onMenuPress={toggleSidebar} />
       <View className="flex-1 justify-center items-center px-6">
         <Image
           source={require("../../assets/images/imageBody.jpg")}
@@ -117,7 +120,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Overlay when sidebar is open */}
       {sidebarOpen && (
         <Pressable
           className="absolute top-0 left-0 right-0 bottom-0 bg-black/30"
@@ -165,20 +167,25 @@ export default function HomeScreen() {
             </View>
 
             <View className="bg-white rounded-lg p-2 mt-3 border border-gray-200">
-              {/* Header Dropdown */}
               <TouchableOpacity
                 onPress={() => setIsOpen(!isOpen)}
                 className="flex-row justify-between items-center p-3"
               >
-                <Text className="text-[#0a2463] font-medium">Trạng thái</Text>
-                <MaterialIcons
-                  name={isOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+                <MaterialCommunityIcons
+                  name="list-status"
                   size={20}
-                  color="#0a2463"
+                  color="gray"
+                />
+                <Text className="text-[#0a2463] font-medium text-lg">
+                  Trạng thái
+                </Text>
+                <AntDesign
+                  name={isOpen ? "caretup" : "caretdown"}
+                  size={13}
+                  color="gray"
                 />
               </TouchableOpacity>
 
-              {/* Dropdown Content */}
               {isOpen && (
                 <View className="border-t border-gray-300">
                   {statuses.map((status, index) => (
@@ -187,11 +194,10 @@ export default function HomeScreen() {
                       className="flex-row items-center p-3"
                       onPress={() => toggleStatus(status.key)}
                     >
-                      {/* Check Box */}
                       <View
                         className={`w-5 h-5 border border-blue-500 rounded mr-2 items-center justify-center ${
                           selectedStatuses.includes(status.key)
-                            ? "bg-blue-500"
+                            ? "bg-[#1864bc]"
                             : "bg-white"
                         }`}
                       >
@@ -200,7 +206,6 @@ export default function HomeScreen() {
                         )}
                       </View>
 
-                      {/* Status Label */}
                       <Text
                         className={`px-2 py-1 rounded-lg text-xs font-medium ${status.color}`}
                       >
@@ -221,14 +226,13 @@ export default function HomeScreen() {
                 </Text>
                 <MaterialCommunityIcons
                   name="pin-off-outline"
-                  size={20}
-                  color="black"
+                  size={24}
+                  color="#0a2463"
                 />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Production orders list */}
           <ScrollView className="flex-1">
             {filteredOrders.map((order) => {
               const statusInfo = getStatusInfo(order.status);
@@ -240,12 +244,9 @@ export default function HomeScreen() {
                   className="mb-3 overflow-hidden rounded-lg"
                   style={{ backgroundColor: "#f4fcfc" }}
                 >
-                  {/* Left Border */}
                   <View className="flex-row">
                     <View className="w-1 bg-blue-500" />
-
                     <View className="flex-1">
-                      {/* Status Header */}
                       <View
                         className={`flex-row items-center px-3 py-2 ${
                           statusInfo.color === "orange"
@@ -271,15 +272,10 @@ export default function HomeScreen() {
                           {statusInfo.text}
                         </Text>
                         <View className="flex-1" />
-                        {/* <MaterialIcons
-                          name="push-pin"
-                          size={20}
-                          color={isPinned ? "red" : "gray"}
-                        /> */}
                         <TouchableOpacity onPress={() => togglePin(order.id)}>
-                          <MaterialIcons
-                            name="push-pin"
-                            size={20}
+                          <Entypo
+                            name="pin"
+                            size={24}
                             color={
                               pinnedOrders.includes(order.id) ? "red" : "gray"
                             }
@@ -287,18 +283,15 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                       </View>
 
-                      {/* Order Content */}
                       <View className="px-3 py-2">
-                        <Text className="text-blue-700 font-bold text-lg mb-1">
+                        <Text className="text-[#0a2463] font-bold text-lg mb-1">
                           {order.name || "LSX-13032514"}
                         </Text>
-                        <Text className="text-gray-500 text-sm mb-3">
+                        <Text className="text-gray-500 text-sm mb-2">
                           Deadline: {order.deadline || "13/03/2025"}
                         </Text>
 
-                        {/* Progress bars in a row */}
                         <View className="flex-row items-center mb-3">
-                          {/* Process 1 (Orange) */}
                           <View className="h-3 bg-orange-100 rounded-full overflow-hidden flex-1 mr-1 relative">
                             <View
                               className="h-full bg-orange-500 rounded-full flex-row items-center"
@@ -310,7 +303,6 @@ export default function HomeScreen() {
                             </View>
                           </View>
 
-                          {/* Process 2 (Blue) */}
                           <View className="h-3 bg-blue-100 rounded-full overflow-hidden flex-1 mr-1 relative">
                             <View
                               className="h-full bg-blue-500 rounded-full flex-row items-center"
@@ -322,7 +314,6 @@ export default function HomeScreen() {
                             </View>
                           </View>
 
-                          {/* Info icon with tooltip */}
                           <View className="relative">
                             <TouchableOpacity
                               onPress={() =>
@@ -339,10 +330,8 @@ export default function HomeScreen() {
                               />
                             </TouchableOpacity>
 
-                            {/* Enhanced Tooltip */}
                             {showTooltip === order.id && (
                               <View className="absolute right-0 bottom-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-10 w-72">
-                                {/* First Row */}
                                 <View className="flex-row items-center justify-between mb-3">
                                   <View className="flex-row items-center flex-1">
                                     <View className="w-3 h-3 rounded-full bg-orange-500 mr-3" />
@@ -355,7 +344,6 @@ export default function HomeScreen() {
                                   </Text>
                                 </View>
 
-                                {/* Second Row */}
                                 <View className="flex-row items-center justify-between ">
                                   <View className="flex-row items-center flex-1">
                                     <View className="w-3 h-3 rounded-full bg-blue-500 mr-3" />
@@ -368,7 +356,6 @@ export default function HomeScreen() {
                                   </Text>
                                 </View>
 
-                                {/* Triangle pointer */}
                                 <View
                                   className="absolute -bottom-2 right-4"
                                   style={{
@@ -385,7 +372,6 @@ export default function HomeScreen() {
                                     borderTopColor: "white",
                                   }}
                                 />
-                                {/* Shadow for triangle */}
                                 <View
                                   className="absolute -bottom-2.5 right-3.5"
                                   style={{
